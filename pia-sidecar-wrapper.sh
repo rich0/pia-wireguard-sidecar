@@ -1,4 +1,3 @@
-
 #!/bin/sh
 set -euo pipefail
 
@@ -18,39 +17,27 @@ export MAX_LATENCY=200   # Max ping latency for server selection (ms)
 
 echo "=== Starting PIA WireGuard Sidecar ==="
 
+cd /usr/local/bin
+
 # Step 1: Get authentication token
-echo "Fetching PIA token..."
-get_token.sh
+#echo "Fetching PIA token..."
+#get_token.sh
 
-# Step 2: Get region/server (auto-select lowest latency or preferred)
-echo "Selecting server..."
-if [ -n "$PREFERRED_REGION" ]; then
-  get_region.sh --region "$PREFERRED_REGION"
-else
-  get_region.sh
-fi
-
-# Step 3: Generate WireGuard config (don't connect yet)
-echo "Generating WireGuard config at $PIA_CONF_PATH..."
-connect_to_wireguard_with_token.sh
-
-# Step 4: Bring up the tunnel manually (for control)
-echo "Bringing up wg0 tunnel..."
-wg-quick up "$PIA_CONF_PATH"
+run_setup.sh
 
 # Step 5: Rewrite routes (delete CNI default, add via wg0)
-echo "Configuring routes..."
-DEFAULT_GW=$(ip route | awk '/default via/ {print $3; exit}')
-[ -n "$DEFAULT_GW" ] && ip route del default via "$DEFAULT_GW" || true
-ip route add default dev wg0
+#echo "Configuring routes..."
+#DEFAULT_GW=$(ip route | awk '/default via/ {print $3; exit}')
+#[ -n "$DEFAULT_GW" ] && ip route del default via "$DEFAULT_GW" || true
+#ip route add default dev wg0
 
 # Step 6: (Optional) Enable port forwarding
-if [ "$PIA_PF" = "true" ]; then
-  echo "Enabling port forwarding..."
-  port_forwarding.sh
-fi
+#if [ "$PIA_PF" = "true" ]; then
+#  echo "Enabling port forwarding..."
+#  port_forwarding.sh
+#fi
 
-echo "=== Tunnel ready! All egress now via PIA. ==="
+#echo "=== Tunnel ready! All egress now via PIA. ==="
 
 # Keep alive (monitor tunnel health if needed)
 exec sleep infinity

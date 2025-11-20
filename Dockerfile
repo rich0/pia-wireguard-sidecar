@@ -9,7 +9,10 @@ RUN apk add --no-cache \
     wireguard-tools \
     iproute2 \
     curl \
-    jq
+    jq \
+    iptables \
+    openresolv \
+    ip6tables
 
 # Clone the official PIA manual-connections repo
 WORKDIR /tmp
@@ -25,10 +28,13 @@ RUN apk add --no-cache \
     wireguard-tools \
     iproute2 \
     curl \
-    jq
+    jq \
+    iptables \
+    openresolv \
+    ip6tables
 
 # Copy the PIA helper scripts from the builder stage
-COPY --from=builder /tmp/manual-connections/*.sh /usr/local/bin/
+COPY --from=builder /tmp/manual-connections/*  /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
 
 # Create a directory for tokens / generated config (mounted as emptyDir in the pod)
