@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.25
-ARG ALPINE_RELEASE=3.22
+ARG ALPINE_RELEASE=3.24
 
 FROM alpine:${ALPINE_RELEASE} AS builder
 
