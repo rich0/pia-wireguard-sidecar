@@ -37,6 +37,13 @@ RUN apk add --no-cache \
 COPY --from=builder /tmp/manual-connections/*  /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
 
+# openresolv 3.17+ (Alpine 3.23+) rejects /etc/resolv.conf without its signature
+# and tries to restart services via an init system that containers lack.
+RUN printf '%s\n' \
+    '# Container-friendly resolvconf config' \
+    'libc_restart=":"' \
+    >> /etc/resolvconf.conf
+
 # Create a directory for tokens / generated config (mounted as emptyDir in the pod)
 RUN mkdir -p /opt/piavpn-manual
 
