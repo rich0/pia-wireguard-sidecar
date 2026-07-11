@@ -1,6 +1,8 @@
 #!/bin/bash
+set -euo pipefail
 ALPINE_RELEASE=3.24
-docker build . --pull --no-cache --build-arg ALPINE_RELEASE=$ALPINE_RELEASE --tag ghcr.io/rich0/pia-wireguard-sidecar:$ALPINE_RELEASE --tag ghcr.io/rich0/pia-wireguard-sidecar:latest && docker push ghcr.io/rich0/pia-wireguard-sidecar:$ALPINE_RELEASE && docker push ghcr.io/rich0/pia-wireguard-sidecar:latest
-#docker build . --pull --build-arg ALPINE_RELEASE=$ALPINE_RELEASE --tag ghcr.io/rich0/pia-wireguard-sidecar:$ALPINE_RELEASE --tag ghcr.io/rich0/pia-wireguard-sidecar:latest && docker push ghcr.io/rich0/pia-wireguard-sidecar:$ALPINE_RELEASE && docker push ghcr.io/rich0/pia-wireguard-sidecar:latest
-
-
+IMAGE=registry.rich0.org/public/pia-wireguard-sidecar
+docker build . --pull --no-cache --build-arg ALPINE_RELEASE=$ALPINE_RELEASE \
+  --tag "$IMAGE:$ALPINE_RELEASE" --tag "$IMAGE:latest"
+docker push "$IMAGE:$ALPINE_RELEASE"
+docker push "$IMAGE:latest"
