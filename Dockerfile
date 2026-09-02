@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1.25
+# syntax = docker/dockerfile:1.27
 ARG ALPINE_RELEASE=3.24
 
 FROM alpine:${ALPINE_RELEASE} AS builder
