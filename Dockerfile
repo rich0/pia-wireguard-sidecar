@@ -33,6 +33,23 @@ RUN apk add --no-cache \
     openresolv \
     ip6tables
 
+# Ubuntu 26.04 attaches host AppArmor profiles to /usr/bin/wg-quick and
+# /usr/bin/wg. A privileged container starts unconfined, so exec of those
+# paths enters the host profile. That profile allows /usr/bin/readlink, but
+# Alpine's readlink is /bin/busybox, so wg-quick dies before pia comes up.
+# A different path does not match the attachment. /usr/local/bin is earlier
+# on Alpine PATH than /usr/bin. Do not leave the originals: an absolute exec
+# of /usr/bin/wg* still enters the profile. wg-quick prepends its own
+# directory to PATH, so the ELF in /usr/local/lib is the wg it runs.
+RUN mkdir -p /usr/local/lib \
+    && mv /usr/bin/wg /usr/local/lib/wg \
+    && mv /usr/bin/wg-quick /usr/local/lib/wg-quick \
+    && printf '%s\n' '#!/bin/sh' 'exec /usr/local/lib/wg "$@"' > /usr/local/bin/wg \
+    && printf '%s\n' '#!/bin/sh' 'exec /usr/local/lib/wg-quick "$@"' > /usr/local/bin/wg-quick \
+    && chmod 755 /usr/local/bin/wg /usr/local/bin/wg-quick \
+    && test ! -e /usr/bin/wg \
+    && test ! -e /usr/bin/wg-quick
+
 # Copy the PIA helper scripts from the builder stage
 COPY --from=builder /tmp/manual-connections/*  /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
