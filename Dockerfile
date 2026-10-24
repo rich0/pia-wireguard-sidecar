@@ -58,6 +58,13 @@ RUN chmod +x /usr/local/bin/*.sh
 COPY patch-pia-wireguard-dns.sh /tmp/patch-pia-wireguard-dns.sh
 RUN chmod +x /tmp/patch-pia-wireguard-dns.sh && /tmp/patch-pia-wireguard-dns.sh
 
+# jq -r '.token' prints null for a missing token, which the upstream check
+# treats as success. Also replace GNU date --date, which busybox rejects.
+COPY patch-pia-get-token.sh /tmp/patch-pia-get-token.sh
+RUN chmod +x /tmp/patch-pia-get-token.sh \
+    && /tmp/patch-pia-get-token.sh \
+    && /tmp/patch-pia-get-token.sh
+
 # Create a directory for tokens / generated config (mounted as emptyDir in the pod)
 RUN mkdir -p /opt/piavpn-manual
 
